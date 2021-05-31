@@ -1,0 +1,61 @@
+Sub Auto_Open()
+'
+'copy all external sheets to WBS BBG and copy and rename WBS BBG
+'
+
+Dim name, wk As String 'sheet name, week number
+Dim MyFile As String 'files
+Dim i, j As Long
+Dim ws As Worksheet
+Dim d As Double 'date
+
+Application.ScreenUpdating = False
+
+    MyFile = Dir("K:\WBS macros\Source data\", vbReadOnly)'Path to files to copy
+    Set closedBookPaste = Workbooks.Open("K:\WBS macros\WBS.xlsx") 'master file
+    
+    Do While MyFile <> ""
+    DoEvents
+    On Error GoTo 0
+    
+    'Path to source files
+    Set closedBookCopy = Workbooks.Open("K:\WBS macros\Source data\" & MyFile)
+    
+     Application.DisplayAlerts = False
+    For j = 1 To closedBookCopy.Worksheets.Count
+        name = closedBookCopy.Sheets(j).name
+          
+           For Each ws In closedBookPaste.Worksheets
+                 If ws.name Like name Then
+                    ws.Delete
+                    closedBookCopy.Sheets(j).Copy Before:=closedBookPaste.Sheets(1)
+                 End If
+        Next ws
+    Next j
+     Application.DisplayAlerts = True
+0
+    Workbooks(MyFile).Close SaveChanges:=False
+    
+    MyFile = Dir
+    Loop
+    
+    closedBookPaste.Close SaveChanges:=True
+    
+    d = Display_WeekNum(Date) - 1
+    wk = CStr(d)
+    FileCopy "K:\WBS macros\WBS.xlsx", "K:\WBS macros\WBS CW" & wk & ".xlsx"
+ 
+    'Close Launcher.xlsm
+    ActiveWindow.Close
+ 
+    Application.ScreenUpdating = True
+
+End Sub
+
+
+Function Display_WeekNum(DefinedDate As Date)
+
+Display_WeekNum = WorksheetFunction.weekNum(DefinedDate, vbMonday)
+
+End Function
+
